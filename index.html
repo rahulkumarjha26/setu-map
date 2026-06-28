@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Setu — The Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- MAP -->
+  <div id="map"></div>
+  <div class="map-tint"></div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">सेतु</span>
+      <span class="brand-sub">the map</span>
+    </div>
+    <div class="loc" id="locChip">Loading…</div>
+    <button class="refresh" id="refreshBtn" title="Refresh">↻</button>
+  </div>
+
+  <!-- CATEGORY FILTER -->
+  <div class="catbar" id="catbar"></div>
+
+  <!-- LEGEND (honest states) -->
+  <div class="legend">
+    <div class="lh">What the colours mean</div>
+    <div class="lr"><span class="ld" style="background:#3f8a55"></span>Open for funding</div>
+    <div class="lr"><span class="ld" style="background:#bd8a40"></span>Needs reframe</div>
+    <div class="lr"><span class="ld" style="background:#8a978c"></span>Government's duty — routed</div>
+    <div class="lr"><span class="ld" style="background:#2e7d46;box-shadow:0 0 6px #92c8a0"></span>Proven / healed</div>
+  </div>
+
+  <!-- DOCK (list of wounds) -->
+  <div class="dock" id="dock">
+    <div class="dock-h">
+      <div class="dock-k" id="dockK">Near you</div>
+      <h2 class="dock-title" id="dockTitle">Listening…</h2>
+    </div>
+    <div class="dock-list" id="dockList"></div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty hidden" id="emptyState">
+    <div class="empty-card">
+      <div class="empty-mark">सेतु</div>
+      <h3 id="emptyTitle">This corner is quiet — for now.</h3>
+      <p>No wounds have been spoken here yet. Be the first. Your voice puts the first pin on the map.</p>
+      <a class="empty-btn" id="emptyBtn" href="#" target="_blank" rel="noopener">Speak a wound →</a>
+    </div>
+  </div>
+
+  <!-- DOSSIER -->
+  <div class="sheet" id="dossier">
+    <div class="sheet-scrim" id="dosScrim"></div>
+    <div class="sheet-panel" id="dosPanel">
+      <div class="dos-img"><img id="dosImg" alt=""><button class="dos-close" id="dosClose">✕</button>
+        <div class="dos-toggle">
+          <button class="active" id="tabHeart" data-m="heart">Heart</button>
+          <button id="tabLedger" data-m="ledger">Ledger</button>
+        </div>
+      </div>
+      <div class="dos-body">
+        <span class="dos-stage" id="dosStage"></span>
+        <h2 class="dos-title" id="dosTitle"></h2>
+        <div class="dos-cat" id="dosCat"></div>
+
+        <div class="heart-block" id="heartBlock">
+          <p class="dos-desc" id="dosDesc"></p>
+          <div class="dos-traj-lbl"><span>Heard</span><span class="now" id="dosNow"></span><span>Proven</span></div>
+          <div class="dos-traj" id="dosTraj"></div>
+        </div>
+
+        <div class="ledger-block hidden" id="ledgerBlock">
+          <div class="lq" id="ledgerCards"></div>
+          <div class="ledger-note">
+            <b id="ledgerBin"></b>
+            <p id="ledgerExplain"></p>
+            <p class="zero">₹0 taken by Setu from the help. Funds release only against verified milestones.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

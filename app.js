@@ -1,0 +1,178 @@
+const CFG = window.SETU_CONFIG;
+const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+
+// --- category + honest-state helpers ---
+const CATS = ["all","sanitation","water","roads","education","health","environment","elderly","other"];
+const CAT_EMOJI = {sanitation:"🚻",water:"💧",roads:"🛣️",education:"📚",health:"➕",environment:"🌿",elderly:"🧓",other:"📍"};
+const STAGES = ["heard","sorted","funded","built","proven"];
+
+function pinColor(p){
+  if(p.stage === "proven") return "#2e7d46";
+  if(p.legality_bin === "statutory") return "#8a978c";
+  if(p.legality_bin === "reframe")   return "#bd8a40";
+  return "#3f8a55";
+}
+function stageLabel(p){
+  if(p.legality_bin === "statutory"){
+    if(p.gov_status === "no_action") return "Routed · "+(p.gov_days||0)+" days, no action yet";
+    if(p.gov_status === "resolved")  return "Resolved by the municipality";
+    return "Government's duty — routed & tracked";
+  }
+  return {heard:"Heard",sorted:"Sorted",funded:"Funded",built:"Built",proven:"Proven"}[p.stage] || "Heard";
+}
+function chipClass(p){
+  if(p.stage==="proven") return "c-proven";
+  if(p.legality_bin==="statutory") return "c-statutory";
+  if(p.legality_bin==="reframe") return "c-reframe";
+  return "c-fundable";
+}
+function stageIndex(p){ const i = STAGES.indexOf(p.stage); return i<0?0:i; }
+
+// --- map setup ---
+const map = L.map('map',{zoomControl:false,attributionControl:true,minZoom:4,maxZoom:18})
+  .setView([CFG.CENTER.lat, CFG.CENTER.lng], CFG.CENTER.zoom);
+const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+  {subdomains:'abcd',attribution:'&copy; OSM &copy; CARTO',maxZoom:19}).addTo(map);
+const seedLayer = L.layerGroup().addTo(map);
+L.marker([CFG.CENTER.lat, CFG.CENTER.lng],
+  {icon:L.divIcon({className:'',html:'<div class="you"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:600}).addTo(map);
+
+let ALL = [];
+let curCat = "all";
+let markers = {};
+
+function seedHTML(p){
+  const c = pinColor(p);
+  const fill = stageIndex(p)/(STAGES.length-1);
+  const C = 100, off = C*(1-fill);
+  const fuzz = p.is_sensitive ? '<div class="seed-fuzz"></div>' : '';
+  return '<div class="seed'+(p.stage==="proven"?" proven":"")+'">'
+    + '<svg width="40" height="40" viewBox="0 0 40 40">'
+    + '<circle cx="20" cy="20" r="16" fill="rgba(255,254,252,.95)" stroke="#dfe3dc" stroke-width="3"/>'
+    + '<circle cx="20" cy="20" r="16" fill="none" stroke="'+c+'" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 20 20)"/>'
+    + '</svg>'
+    + '<div class="seed-glyph">'+(CAT_EMOJI[p.category]||"📍")+'</div>'
+    + fuzz + '</div>';
+}
+
+async function loadWounds(){
+  const { data, error } = await sb.from('public_problems').select('*').order('created_at',{ascending:false});
+  if(error){ console.error(error); toast("Could not load the map. Retry?"); return; }
+  ALL = data || [];
+  render();
+}
+
+function render(){
+  seedLayer.clearLayers(); markers = {};
+  const shown = ALL.filter(p => curCat==="all" || p.category===curCat);
+
+  const empty = document.getElementById('emptyState');
+  if(shown.length === 0){ empty.classList.remove('hidden'); }
+  else { empty.classList.add('hidden'); }
+
+  shown.forEach(p=>{
+    if(p.latitude==null || p.longitude==null) return;
+    const m = L.marker([p.latitude,p.longitude],
+      {icon:L.divIcon({className:'mk',html:seedHTML(p),iconSize:[40,40],iconAnchor:[20,20]})}).addTo(seedLayer);
+    m.on('click',()=>openDossier(p));
+    markers[p.id]=m;
+    if(p.is_sensitive){
+      L.circle([p.latitude,p.longitude],{radius:300,color:'#9bbfa6',weight:1,dashArray:'4 5',fillColor:'#cfe7d3',fillOpacity:.16}).addTo(seedLayer);
+    }
+  });
+
+  const list = document.getElementById('dockList');
+  list.innerHTML = '';
+  const proven = shown.filter(p=>p.stage==="proven").length;
+  document.getElementById('dockTitle').textContent =
+    shown.length===0 ? "No wounds here yet." :
+    (proven>0 ? proven+" healed, "+shown.length+" in motion" : shown.length+" wound"+(shown.length>1?"s":"")+" near you");
+  shown.forEach(p=>{
+    const d = document.createElement('div'); d.className='dl-item';
+    const thumb = p.media_type==="photo" && p.media_url
+      ? '<img src="'+p.media_url+'" alt="">' : (CAT_EMOJI[p.category]||"📍");
+    d.innerHTML = '<div class="dl-thumb">'+thumb+'</div>'
+      + '<div class="dl-main"><span class="chip '+chipClass(p)+'">'+stageLabel(p)+'</span>'
+      + '<div class="dl-title">'+escapeHTML(p.title||"Untitled")+'</div>'
+      + '<div class="dl-sub">'+escapeHTML(p.reporter_handle||"A citizen")+'</div></div>';
+    d.addEventListener('click',()=>{ openDossier(p); map.flyTo([p.latitude,p.longitude],15,{duration:.7}); });
+    list.appendChild(d);
+  });
+}
+
+// --- dossier ---
+function openDossier(p){
+  document.getElementById('dosTitle').textContent = p.title||"Untitled";
+  document.getElementById('dosCat').textContent = p.category||"";
+  document.getElementById('dosStage').textContent = stageLabel(p);
+  document.getElementById('dosDesc').textContent = p.description||p.transcript||"";
+  const img = document.getElementById('dosImg');
+  if(p.media_type==="photo" && p.media_url){ img.src=p.media_url; img.style.display=''; }
+  else { img.style.display='none'; }
+
+  const tr = document.getElementById('dosTraj'); tr.innerHTML='';
+  const si = stageIndex(p);
+  for(let i=0;i<STAGES.length;i++){
+    const nd=document.createElement('div');
+    nd.className='nd'+(i<si?' done':'')+(i===si?' curr':''); tr.appendChild(nd);
+    if(i<STAGES.length-1){ const sg=document.createElement('div'); sg.className='sg'+(i<si?' done':''); tr.appendChild(sg); }
+  }
+  document.getElementById('dosNow').textContent = stageLabel(p);
+
+  const bins = {
+    fundable:["Companies can fund this","This wound sits cleanly on Schedule VII — lawful corporate CSR. The full sum reaches the project."],
+    statutory:["Government's duty","By law this is the state's own responsibility (e.g. roads, drains). CSR cannot fund it, so Setu routes it to the municipality and tracks it honestly."],
+    reframe:["Needs the honest reframe","Part is the government's duty (routed back); part is lawfully fundable. Setu splits it so the law is obeyed and no one is misled."]
+  };
+  const b = bins[p.legality_bin] || bins.reframe;
+  document.getElementById('ledgerBin').textContent = b[0];
+  document.getElementById('ledgerExplain').textContent = b[1];
+  document.getElementById('ledgerCards').innerHTML =
+    '<div class="lqc"><b>Legal</b><span>Schedule VII</span></div>'
+   +'<div class="lqc"><b>Partner</b><span>'+(p.stage==="heard"?"to be matched":"12A·80G·CSR-1")+'</span></div>'
+   +'<div class="lqc"><b>Proof</b><span>'+(["funded","built","proven"].includes(p.stage)?"4-layer":"once funded")+'</span></div>';
+
+  setDosMode('heart');
+  document.getElementById('dossier').classList.add('show');
+}
+function setDosMode(m){
+  document.getElementById('heartBlock').classList.toggle('hidden', m!=="heart");
+  document.getElementById('ledgerBlock').classList.toggle('hidden', m!=="ledger");
+  document.getElementById('tabHeart').classList.toggle('active', m==="heart");
+  document.getElementById('tabLedger').classList.toggle('active', m==="ledger");
+}
+
+// --- category bar ---
+function buildCatbar(){
+  const bar = document.getElementById('catbar'); bar.innerHTML='';
+  CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cat'+(c==="all"?' active':'');
+    b.textContent = c==="all" ? "All wounds" : ((CAT_EMOJI[c]||"")+" "+c.charAt(0).toUpperCase()+c.slice(1));
+    b.addEventListener('click',()=>{
+      curCat=c; document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render();
+    });
+    bar.appendChild(b);
+  });
+}
+
+// --- utils + wiring ---
+function escapeHTML(s){ return (s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+let toastT;
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+
+document.getElementById('dosClose').addEventListener('click',()=>document.getElementById('dossier').classList.remove('show'));
+document.getElementById('dosScrim').addEventListener('click',()=>document.getElementById('dossier').classList.remove('show'));
+document.getElementById('tabHeart').addEventListener('click',()=>setDosMode('heart'));
+document.getElementById('tabLedger').addEventListener('click',()=>setDosMode('ledger'));
+document.getElementById('refreshBtn').addEventListener('click',loadWounds);
+document.getElementById('locChip').textContent = "Your area";
+document.getElementById('emptyBtn').href = CFG.BOT_URL || "#";
+
+buildCatbar();
+loadWounds();
+
+// live updates when new wounds are published
+sb.channel('public_problems_changes')
+  .on('postgres_changes',{event:'*',schema:'public',table:'problems'},()=>loadWounds())
+  .subscribe();
