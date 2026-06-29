@@ -23,7 +23,7 @@ const CAT_PATHS = {
 function catIcon(cat, color, size){
   const p = CAT_PATHS[cat] || CAT_PATHS.other;
   return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||'#0f3e17')+
-    '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+    '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
 }
 
 // UI chrome icons (no emoji anywhere in the chrome).
@@ -41,7 +41,7 @@ const UI_PATHS = {
 };
 function uiIcon(name, size, color){
   return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||'currentColor')+
-    '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(UI_PATHS[name]||'')+'</svg>';
+    '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(UI_PATHS[name]||'')+'</svg>';
 }
 
 function pinColor(p){
@@ -380,7 +380,7 @@ function buildCatbar(){
   CATS.forEach(c=>{
     const b=document.createElement('button');
     b.className='cat'+(c==="all"?' active':'');
-    const ic = c==="all" ? uiIcon('all',13,'currentColor') : catIcon(c,13,CAT_COLOR[c]);
+    const ic = c==="all" ? uiIcon('all',15,'currentColor') : catIcon(c,15,CAT_COLOR[c]);
     const label = c==="all" ? "All wounds" : c.charAt(0).toUpperCase()+c.slice(1);
     b.innerHTML='<span class="cat-ic">'+ic+'</span><span class="cat-lb">'+label+'</span>';
     b.addEventListener('click',()=>{
