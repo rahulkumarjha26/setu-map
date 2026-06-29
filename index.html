@@ -6,9 +6,12 @@
 <title>Setu — The Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500..700&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300..500&family=Inter:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="style.css">
+<!-- Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
   <!-- MAP -->
@@ -22,8 +25,11 @@
       <span class="brand-mark">सेतु</span>
       <span class="brand-sub">the map</span>
     </div>
-    <div class="loc" id="locChip">Loading…</div>
-    <button class="refresh" id="refreshBtn" title="Refresh">↻</button>
+    <div class="loc" id="locChip">
+      <i data-lucide="search" class="search-icon"></i>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search a place or wound…">
+    </div>
+    <button class="refresh" id="refreshBtn" title="Refresh"><i data-lucide="refresh-cw"></i></button>
   </div>
 
   <!-- CATEGORY FILTER -->
@@ -41,10 +47,31 @@
   <!-- DOCK (list of wounds) -->
   <div class="dock" id="dock">
     <div class="dock-h">
-      <div class="dock-k" id="dockK">Near you</div>
-      <h2 class="dock-title" id="dockTitle">Listening…</h2>
+      <div class="dock-k" id="dockK">Loading…</div>
+      <h2 class="dock-title" id="dockTitle">Across Dwarka</h2>
     </div>
-    <div class="dock-list" id="dockList"></div>
+    <div class="dock-list" id="dockList">
+      <div class="dl-item skeleton">
+        <div class="dl-thumb skeleton-pulse"></div>
+        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      </div>
+      <div class="dl-item skeleton">
+        <div class="dl-thumb skeleton-pulse"></div>
+        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      </div>
+      <div class="dl-item skeleton">
+        <div class="dl-thumb skeleton-pulse"></div>
+        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      </div>
+      <div class="dl-item skeleton">
+        <div class="dl-thumb skeleton-pulse"></div>
+        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      </div>
+      <div class="dl-item skeleton">
+        <div class="dl-thumb skeleton-pulse"></div>
+        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- EMPTY STATE -->
@@ -61,7 +88,9 @@
   <div class="sheet" id="dossier">
     <div class="sheet-scrim" id="dosScrim"></div>
     <div class="sheet-panel" id="dosPanel">
-      <div class="dos-img"><img id="dosImg" alt=""><button class="dos-close" id="dosClose">✕</button>
+      <div class="dos-img">
+        <div class="dos-img-content" id="dosImgContent"></div>
+        <button class="dos-close" id="dosClose"><i data-lucide="x"></i></button>
         <div class="dos-toggle">
           <button class="active" id="tabHeart" data-m="heart">Heart</button>
           <button id="tabLedger" data-m="ledger">Ledger</button>
@@ -83,15 +112,15 @@
           <div class="ledger-note">
             <b id="ledgerBin"></b>
             <p id="ledgerExplain"></p>
-            <div class="zero-pill"><span class="check">✓</span> ₹0 taken by Setu · verified milestones only</div>
+            <div class="zero-pill"><span class="check"><i data-lucide="check" width="10" height="10"></i></span> ₹0 taken by Setu · verified milestones only</div>
           </div>
           <div class="dos-file-action hidden" id="dosFileAction">
             <div class="dos-file-divider"></div>
-            <div class="dos-file-h">📨 File this with <span id="dosFileAuth">the authority</span></div>
+            <div class="dos-file-h"><i data-lucide="send" class="file-icon"></i> File this with <span id="dosFileAuth">the authority</span></div>
             <p class="dos-file-p">Tap to send a prefilled complaint via WhatsApp — we've written it for you.</p>
             <div class="dos-file-btns">
-              <a class="dos-file-btn dos-file-wa" id="dosFileWA" href="#" target="_blank" rel="noopener">📱 WhatsApp →</a>
-              <a class="dos-file-btn dos-file-em" id="dosFileEmail" href="#" target="_blank" rel="noopener">📧 Email</a>
+              <a class="dos-file-btn dos-file-wa" id="dosFileWA" href="#" target="_blank" rel="noopener"><i data-lucide="message-circle"></i> WhatsApp →</a>
+              <a class="dos-file-btn dos-file-em" id="dosFileEmail" href="#" target="_blank" rel="noopener"><i data-lucide="mail"></i> Email</a>
             </div>
           </div>
         </div>
@@ -103,6 +132,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
