@@ -33,7 +33,7 @@ window.SETU_CONFIG = {
   SUPABASE_URL: "https://YOUR-PROJECT.supabase.co",
   SUPABASE_ANON_KEY: "your-anon-key",  // Safe to commit — restricted by RLS
   BOT_URL: "https://t.me/SetuReportBot",
-  CENTER: { lat: 28.5921, lng: 77.0460, zoom: 14 }  // Dwarka, New Delhi (the wedge)
+  CENTER: { lat: 28.7041, lng: 77.1025, zoom: 13 }  // Delhi
 };
 ```
 
@@ -56,26 +56,14 @@ Or use Cloudflare Pages: connect repo → no build command → deploy.
 ## How it works
 
 - The map fetches from `public_problems` (a secure Postgres view) via the Supabase JS client
-- On load it auto-fits to the actual pins (or falls back tight on the Dwarka wedge) — it never opens on an empty, zoomed-out country
-- The location is shown as a human place name (reverse-geocoded via OSM Nominatim, cached), never as raw coordinates
-- Pins are clean white "seed" discs with a coloured stage ring and a consistent stroke-based SVG category icon (no emoji). Coloured by honesty, not optimism:
-  - Green = open for funding (CSR-fundable)
-  - Gold = needs reframe (partly statutory, partly fundable)
-  - Slate = government's duty (statutory — routed, not celebrated)
-  - Glowing green = proven / healed
-- Dense pins cluster into branded forest bubbles (Leaflet.markercluster)
-- The dock leads with hope — fundable/proven wounds first, statutory wounds present but visually quieter. Skeleton loaders show while fetching
-- Click a pin to open the dossier with **Heart** (trajectory) and **Ledger** (legal/financial) tabs; a report with no photo shows a designed category-tinted panel, never a grey void
-- Optional dusk mode mutes the basemap to a calm dark treatment
+- Pins are colored by honesty, not optimism:
+  - 🟢 Green = open for funding (CSR-fundable)
+  - 🟤 Gold = needs reframe (partly statutory, partly fundable)
+  - ⚪ Grey = government's duty (statutory — routed, not celebrated)
+  - ✨ Glowing green = proven / healed
+- Click a pin to open the dossier with **Heart** (trajectory) and **Ledger** (legal/financial) tabs
+- Empty state shows a dignified message with a link to the bot
 - Live updates via Supabase Realtime when new wounds are published
-
-## Hard rules
-
-- Read ONLY from `public_problems`; never the base `problems` table
-- Never expose `reporter_telegram_id`
-- `addEventListener` only — no inline handlers (CSP-safe)
-- No emoji in the UI chrome (pins, categories, dock) — a single SVG icon set
-- Never show raw coordinates, empty grey image boxes, or an empty zoomed-out map
 
 ## Acceptance criteria (CHECKPOINT 4)
 
