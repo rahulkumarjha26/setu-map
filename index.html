@@ -6,8 +6,9 @@
 <title>Setu — The Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500..700&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,8 +23,12 @@
       <span class="brand-mark">सेतु</span>
       <span class="brand-sub">the map</span>
     </div>
-    <div class="loc" id="locChip">Loading…</div>
-    <button class="refresh" id="refreshBtn" title="Refresh">↻</button>
+    <label class="search">
+      <span class="search-ic" id="searchIc"></span>
+      <input class="search-input" id="locChip" type="text" placeholder="Search a place or wound…" autocomplete="off" spellcheck="false">
+    </label>
+    <button class="iconbtn" id="duskBtn" title="Day / dusk" aria-label="Toggle dusk mode"></button>
+    <button class="iconbtn" id="refreshBtn" title="Refresh" aria-label="Refresh the map"></button>
   </div>
 
   <!-- CATEGORY FILTER -->
@@ -41,7 +46,7 @@
   <!-- DOCK (list of wounds) -->
   <div class="dock" id="dock">
     <div class="dock-h">
-      <div class="dock-k" id="dockK">Near you</div>
+      <div class="dock-k" id="dockK">Across Dwarka · updated just now</div>
       <h2 class="dock-title" id="dockTitle">Listening…</h2>
     </div>
     <div class="dock-list" id="dockList"></div>
@@ -61,7 +66,9 @@
   <div class="sheet" id="dossier">
     <div class="sheet-scrim" id="dosScrim"></div>
     <div class="sheet-panel" id="dosPanel">
-      <div class="dos-img"><img id="dosImg" alt=""><button class="dos-close" id="dosClose">✕</button>
+      <div class="dos-head">
+        <div class="dos-media" id="dosMedia"></div>
+        <button class="dos-close" id="dosClose" aria-label="Close dossier"></button>
         <div class="dos-toggle">
           <button class="active" id="tabHeart" data-m="heart">Heart</button>
           <button id="tabLedger" data-m="ledger">Ledger</button>
@@ -83,15 +90,15 @@
           <div class="ledger-note">
             <b id="ledgerBin"></b>
             <p id="ledgerExplain"></p>
-            <div class="zero-pill"><span class="check">✓</span> ₹0 taken by Setu · verified milestones only</div>
+            <div class="zero-pill"><span class="check" id="zeroCheck"></span> ₹0 taken by Setu · verified milestones only</div>
           </div>
           <div class="dos-file-action hidden" id="dosFileAction">
             <div class="dos-file-divider"></div>
-            <div class="dos-file-h">📨 File this with <span id="dosFileAuth">the authority</span></div>
+            <div class="dos-file-h" id="dosFileH">File this with <span id="dosFileAuth">the authority</span></div>
             <p class="dos-file-p">Tap to send a prefilled complaint via WhatsApp — we've written it for you.</p>
             <div class="dos-file-btns">
-              <a class="dos-file-btn dos-file-wa" id="dosFileWA" href="#" target="_blank" rel="noopener">📱 WhatsApp →</a>
-              <a class="dos-file-btn dos-file-em" id="dosFileEmail" href="#" target="_blank" rel="noopener">📧 Email</a>
+              <a class="dos-file-btn dos-file-wa" id="dosFileWA" href="#" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="dos-file-btn dos-file-em" id="dosFileEmail" href="#" target="_blank" rel="noopener">Email</a>
             </div>
           </div>
         </div>
@@ -103,6 +110,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
