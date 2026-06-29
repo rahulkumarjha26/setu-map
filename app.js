@@ -14,19 +14,44 @@ function pinColor(p){
 }
 function stageLabel(p){
   if(p.legality_bin === "statutory"){
-    if(p.gov_status === "no_action") return "Routed · "+(p.gov_days||0)+" days, no action yet";
-    if(p.gov_status === "resolved")  return "Resolved by the municipality";
-    return "Government's duty — routed & tracked";
+    if(p.gov_filed === "resolved")      return "Resolved by "+(p.gov_authority||"authority");
+    if(p.gov_filed === "acknowledged")  return (p.gov_authority||"Authority")+" acknowledged it";
+    if(p.gov_filed === "filed_by_citizen") return "Filed with "+(p.gov_authority||"authority")+" — awaiting action";
+    return "Not yet filed — government's duty";
   }
   return {heard:"Heard",sorted:"Sorted",funded:"Funded",built:"Built",proven:"Proven"}[p.stage] || "Heard";
 }
 function chipClass(p){
   if(p.stage==="proven") return "c-proven";
-  if(p.legality_bin==="statutory") return "c-statutory";
+  if(p.legality_bin==="statutory"){
+    if(p.gov_filed==="filed_by_citizen" || p.gov_filed==="acknowledged") return "c-statutory c-filed";
+    if(p.gov_filed==="resolved") return "c-statutory c-filed";
+    return "c-statutory c-unfiled";
+  }
   if(p.legality_bin==="reframe") return "c-reframe";
   return "c-fundable";
 }
 function stageIndex(p){ const i = STAGES.indexOf(p.stage); return i<0?0:i; }
+
+// --- gov routing helpers (client-side, mirrors bot logic) ---
+const GOV = {
+  "MCD": { "name": "MCD", "wa": "918588887773", "email": "mcd-ithelpdesk@mcd.nic.in", "web": "https://mcd.everythingcivic.com/new_complain" },
+  "DJB": { "name": "Delhi Jal Board", "wa": "919650291021", "email": "grievances-djb@delhi.gov.in", "web": "https://mcdonline.nic.in" }
+};
+function buildGovWhatsAppLink(p){
+  const a = GOV[p.gov_authority] || GOV.MCD;
+  const body = "Civic complaint via Setu. Issue: "+p.title+". "+p.description+" Location (approx): "+p.latitude+","+p.longitude+".";
+  return "https://wa.me/"+a.wa+"?text="+encodeURIComponent(body);
+}
+function buildGovEmailLink(p){
+  const a = GOV[p.gov_authority] || GOV.MCD;
+  const body = "Civic complaint via Setu. Issue: "+p.title+". "+p.description+" Location (approx): "+p.latitude+","+p.longitude+".";
+  return "mailto:"+a.email+"?subject="+encodeURIComponent("Civic Grievance via Setu")+"&body="+encodeURIComponent(body);
+}
+function buildGovWebLink(p){
+  const a = GOV[p.gov_authority] || GOV.MCD;
+  return a.web;
+}
 
 // --- map setup ---
 const map = L.map('map',{zoomControl:false,attributionControl:true,minZoom:4,maxZoom:18})
@@ -47,13 +72,16 @@ function seedHTML(p){
   const fill = stageIndex(p)/(STAGES.length-1);
   const C = 100, off = C*(1-fill);
   const fuzz = p.is_sensitive ? '<div class="seed-fuzz"></div>' : '';
+  let badge = '';
+  if(p.legality_bin === "statutory" && p.gov_filed === "awaiting_citizen") badge = '<div class="sd-badge sd-alert">!</div>';
+  else if(p.legality_bin === "statutory" && (p.gov_filed === "filed_by_citizen" || p.gov_filed === "acknowledged")) badge = '<div class="sd-badge sd-ok">✓</div>';
   return '<div class="seed'+(p.stage==="proven"?" proven":"")+'">'
     + '<svg width="40" height="40" viewBox="0 0 40 40">'
     + '<circle cx="20" cy="20" r="16" fill="rgba(255,254,252,.95)" stroke="#dfe3dc" stroke-width="3"/>'
     + '<circle cx="20" cy="20" r="16" fill="none" stroke="'+c+'" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 20 20)"/>'
     + '</svg>'
     + '<div class="seed-glyph">'+(CAT_EMOJI[p.category]||"📍")+'</div>'
-    + fuzz + '</div>';
+    + badge + fuzz + '</div>';
 }
 
 async function loadWounds(){
@@ -157,6 +185,18 @@ function openDossier(p){
     '<div class="lqc"><b>Legal</b><span>Schedule VII</span></div>'
    +'<div class="lqc"><b>Partner</b><span>'+(p.stage==="heard"?"to be matched":"12A·80G·CSR-1")+'</span></div>'
    +'<div class="lqc"><b>Proof</b><span>'+(["funded","built","proven"].includes(p.stage)?"4-layer":"once funded")+'</span></div>';
+
+  // File action for statutory wounds awaiting citizen
+  const fa = document.getElementById('dosFileAction');
+  if(p.legality_bin === "statutory" && p.gov_filed === "awaiting_citizen"){
+    const authName = GOV[p.gov_authority] ? GOV[p.gov_authority].name : (p.gov_authority||"the authority");
+    document.getElementById('dosFileAuth').textContent = authName;
+    document.getElementById('dosFileWA').href = buildGovWhatsAppLink(p);
+    document.getElementById('dosFileEmail').href = buildGovEmailLink(p);
+    fa.classList.remove('hidden');
+  } else {
+    fa.classList.add('hidden');
+  }
 
   setDosMode('heart');
   document.getElementById('dossier').classList.add('show');
