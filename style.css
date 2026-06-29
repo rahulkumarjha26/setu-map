@@ -57,11 +57,12 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--fu);color:var
 .catbar{position:absolute;top:70px;left:16px;right:16px;z-index:19;display:flex;gap:7px;overflow-x:auto;
   scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
 .catbar::-webkit-scrollbar{display:none;}
-.cat{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hair);background:rgba(255,254,252,.94);
-  backdrop-filter:blur(8px);border-radius:var(--r-pill);padding:8px 13px;font-size:var(--t-sm);font-weight:500;
+.cat{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--hair);background:rgba(255,254,252,.94);
+  backdrop-filter:blur(8px);border-radius:var(--r-pill);padding:6px 12px;font-size:var(--t-sm);font-weight:500;
   color:var(--soft);cursor:pointer;white-space:nowrap;box-shadow:var(--sh1);scroll-snap-align:start;min-height:44px;
   transition:background .15s,color .15s,border-color .15s;}
-.cat-ic{display:flex;flex:none;}
+.cat-ic{display:flex;flex-shrink:0;}
+.cat-ic svg{display:block;width:13px;height:13px;}
 .cat:hover{color:var(--ink);}
 .cat.active{background:var(--forest);color:var(--mint);border-color:var(--forest);}
 .cat.active .cat-ic{color:var(--mint);}
