@@ -53,6 +53,9 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--fu);color:var
 .iconbtn:active{transform:scale(.94);}
 .iconbtn.on{background:var(--forest);color:var(--mint);border-color:var(--forest);}
 
+/* LUCIDE ICON PLACEHOLDER (before replacement) */
+i[data-lucide]{display:inline-block;vertical-align:middle;}
+
 /* CATEGORY BAR */
 .catbar{position:absolute;top:70px;left:16px;right:16px;z-index:19;display:flex;gap:7px;overflow-x:auto;
   scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}

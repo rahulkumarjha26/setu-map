@@ -6,43 +6,25 @@ const CATS = ["all","sanitation","water","roads","education","health","environme
 const STAGES = ["heard","sorted","funded","built","proven"];
 
 // Category brand colours + a single consistent 1.8px stroke SVG icon set.
-// Category brand colours + official Lucide SVG paths (ISC license, stroke-based, consistent design).
+// Category brand colours + Lucide icon name mapping (ISC license, stroke-based, consistent).
 const CAT_COLOR = {
   sanitation:"#3f8a55", water:"#3f6f8a", roads:"#8a978c", education:"#bd8a40",
   health:"#b0654a", environment:"#2e7d46", elderly:"#7d6a9c", other:"#67726a"
 };
-const CAT_PATHS = {
-  sanitation:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
-  water:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
-  roads:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
-  education:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
-  health:'<path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/><path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>',
-  environment:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
-  elderly:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.74"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/>',
-  other:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'
+const LUCIDE = {
+  sanitation:"trash-2", water:"droplet", roads:"route", education:"graduation-cap",
+  health:"heart-pulse", environment:"leaf", elderly:"users", other:"help-circle", all:"grid-3x3"
 };
-function catIcon(cat, color, size){
-  const p = CAT_PATHS[cat] || CAT_PATHS.other;
-  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||'#0f3e17')+
-    '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
-}
+const UI_ICONS = {
+  close:"x", check:"check", search:"search", refresh:"refresh-cw",
+  arrow:"arrow-right", file:"file-text", email:"mail", chat:"message-circle", dusk:"moon"
+};
 
-// UI chrome icons (no emoji anywhere in the chrome).
-const UI_PATHS = {
-  close:'<path d="M6 6l12 12M18 6L6 18"/>',
-  check:'<path d="M5 12l5 5 9-11"/>',
-  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>',
-  refresh:'<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>',
-  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
-  file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',
-  email:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
-  chat:'<path d="M21 11.5a8 8 0 0 1-12 6.9L3 21l2.6-6A8 8 0 1 1 21 11.5z"/>',
-  dusk:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
-  all:'<path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h6v6h-6z"/>'
-};
+function catIcon(cat, color, size){
+  return '<i data-lucide="'+(LUCIDE[cat]||'help-circle')+'" width="'+size+'" height="'+size+'" stroke="'+(color||'#0f3e17')+'" stroke-width="2"></i>';
+}
 function uiIcon(name, size, color){
-  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||'currentColor')+
-    '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(UI_PATHS[name]||'')+'</svg>';
+  return '<i data-lucide="'+(UI_ICONS[name]||name)+'" width="'+size+'" height="'+size+'" stroke="'+(color||'currentColor')+'" stroke-width="2"></i>';
 }
 
 function pinColor(p){
@@ -153,6 +135,12 @@ const seedLayer = L.markerClusterGroup({
 map.addLayer(seedLayer);
 const circleLayer = L.layerGroup().addTo(map);
 let youMarker = null;
+
+// Watch for pin icons appearing/declustering in the map
+if (typeof lucide !== 'undefined') {
+  const iconObs = new MutationObserver(() => lucide.createIcons());
+  iconObs.observe(map.getContainer(), { childList: true, subtree: true });
+}
 
 function setYouMarker(lat, lng){
   if(youMarker) map.removeLayer(youMarker);
@@ -267,6 +255,7 @@ function render(){
   renderDock(shown);
   lastUpdated = Date.now();
   updateLiveLine();
+  if (typeof lucide !== 'undefined') requestAnimationFrame(() => lucide.createIcons());
 }
 
 function renderDock(shown){
@@ -367,6 +356,7 @@ function openDossier(p){
 
   setDosMode('heart');
   document.getElementById('dossier').classList.add('show');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 function setDosMode(m){
   document.getElementById('heartBlock').classList.toggle('hidden', m!=="heart");
@@ -389,6 +379,7 @@ function buildCatbar(){
     });
     bar.appendChild(b);
   });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // --- toast + live trust line ---
@@ -434,6 +425,7 @@ document.getElementById('refreshBtn').innerHTML = uiIcon('refresh',18,'var(--for
 document.getElementById('duskBtn').innerHTML = uiIcon('dusk',18,'var(--forest)');
 document.getElementById('dosClose').innerHTML = uiIcon('close',18,'var(--forest)');
 document.getElementById('zeroCheck').innerHTML = uiIcon('check',10,'var(--mint)');
+if (typeof lucide !== 'undefined') lucide.createIcons();
 
 // --- init ---
 updateLiveLine();
