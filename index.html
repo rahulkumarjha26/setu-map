@@ -2,112 +2,177 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a3622">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Setu — The Living Signal. A public map of civic wounds, tracked honestly.">
+<meta property="og:title" content="Setu — The Map">
+<meta property="og:description" content="A public map of civic wounds, tracked honestly.">
+<meta property="og:type" content="website">
+<link rel="icon" href="setu-app-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="setu-app-icon.svg">
+<link rel="manifest" href="manifest.json">
 <title>Setu — The Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300..500&family=Inter:wght@400..600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300..700&family=Inter:wght@400..700&family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="style.css">
-<!-- Icons -->
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/lucide@0.454.0"></script>
 </head>
 <body>
+
+  <!-- LOADING SCREEN -->
+  <div class="loading-screen" id="loadingScreen" role="status" aria-label="Loading">
+    <img src="setu-icon.svg" alt="" class="loading-icon">
+    <div class="loading-pulse"></div>
+    <p class="loading-text">The map is waking up…</p>
+  </div>
+
   <!-- MAP -->
   <div id="map"></div>
   <div class="map-tint"></div>
-  <div class="watermark">Setu · The Living Signal</div>
+
+  <!-- REPORT FAB -->
+  <a class="fab" id="reportFab" href="#" target="_blank" rel="noopener" title="Report a wound" aria-label="Report a wound">
+    <i data-lucide="plus" width="24" height="24"></i>
+  </a>
+
+  <!-- HERO STATS -->
+  <div class="hero-stats" id="heroStats">
+    <div class="hs-card">
+      <div class="hs-icon hs-icon-healed"><i data-lucide="shield-check" width="16" height="16"></i></div>
+      <div class="hs-num" id="hsHealed">—</div>
+      <div class="hs-label">Resolved</div>
+    </div>
+    <div class="hs-card">
+      <div class="hs-icon hs-icon-active"><i data-lucide="activity" width="16" height="16"></i></div>
+      <div class="hs-num" id="hsActive">—</div>
+      <div class="hs-label">Active</div>
+    </div>
+    <div class="hs-card">
+      <div class="hs-icon hs-icon-total"><i data-lucide="map-pin" width="16" height="16"></i></div>
+      <div class="hs-num" id="hsTotal">—</div>
+      <div class="hs-label">Total</div>
+    </div>
+  </div>
 
   <!-- TOP BAR -->
-  <div class="topbar">
+  <div class="topbar" role="banner">
     <div class="brand">
-      <img src="setu-icon.svg" alt="" class="brand-icon">
+      <img src="setu-icon.svg" alt="Setu logo" class="brand-icon">
       <span class="brand-mark">Setu</span>
     </div>
     <div class="loc" id="locChip">
-      <i data-lucide="search" class="search-icon"></i>
-      <input type="text" class="search-input" id="searchInput" placeholder="Search a place or wound…">
+      <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search a place or wound…" aria-label="Search places or wounds" autocomplete="off">
     </div>
-    <button class="refresh" id="refreshBtn" title="Refresh"><i data-lucide="refresh-cw"></i></button>
+    <button class="refresh" id="refreshBtn" title="Refresh" aria-label="Refresh map data"><i data-lucide="refresh-cw"></i></button>
   </div>
 
   <!-- CATEGORY FILTER -->
-  <div class="catbar" id="catbar"></div>
+  <div class="catbar" id="catbar" role="tablist" aria-label="Filter by category"></div>
 
-  <!-- LEGEND (honest states) -->
-  <div class="legend">
-    <div class="lh">What the colours mean</div>
-    <div class="lr"><span class="ld" style="background:#3f8a55"></span>Open for funding</div>
-    <div class="lr"><span class="ld" style="background:#bd8a40"></span>Needs reframe</div>
-    <div class="lr"><span class="ld" style="background:#8a978c"></span>Government's duty — routed</div>
-    <div class="lr"><span class="ld" style="background:#2e7d46;box-shadow:0 0 6px #92c8a0"></span>Proven / healed</div>
+  <!-- LEGEND -->
+  <div class="legend" id="legend">
+    <span class="lh">What the colours mean</span>
+    <div class="lr"><span class="ld ld-fundable"></span>Open for funding</div>
+    <div class="lr"><span class="ld ld-reframe"></span>Needs reframe</div>
+    <div class="lr"><span class="ld ld-statutory"></span>Govt's duty — routed</div>
+    <div class="lr"><span class="ld ld-proven"></span>Proven / healed</div>
   </div>
 
-  <!-- DOCK (list of wounds) -->
-  <div class="dock" id="dock">
+  <!-- LEGEND TOGGLE (mobile) -->
+  <button class="legend-toggle" id="legendToggle" aria-label="Show colour legend">
+    <i data-lucide="palette" width="16" height="16"></i>
+  </button>
+
+  <!-- DOCK -->
+  <div class="dock" id="dock" role="complementary" aria-label="Wound list">
     <div class="dock-h">
       <div class="dock-k" id="dockK">Loading…</div>
-      <h2 class="dock-title" id="dockTitle">Across Dwarka</h2>
+      <h2 class="dock-title" id="dockTitle">Discover wounds near you</h2>
     </div>
-    <div class="dock-list" id="dockList">
-      <div class="dl-item skeleton">
-        <div class="dl-thumb skeleton-pulse"></div>
-        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+    <div class="dock-list" id="dockList" role="list">
+      <div class="dc-item skeleton" aria-hidden="true">
+        <div class="dc-thumb skel"></div>
+        <div class="dc-main">
+          <div class="skel skel-chip"></div>
+          <div class="skel skel-line"></div>
+          <div class="skel skel-line-sm"></div>
+        </div>
       </div>
-      <div class="dl-item skeleton">
-        <div class="dl-thumb skeleton-pulse"></div>
-        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      <div class="dc-item skeleton" aria-hidden="true">
+        <div class="dc-thumb skel"></div>
+        <div class="dc-main">
+          <div class="skel skel-chip"></div>
+          <div class="skel skel-line"></div>
+          <div class="skel skel-line-sm"></div>
+        </div>
       </div>
-      <div class="dl-item skeleton">
-        <div class="dl-thumb skeleton-pulse"></div>
-        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      <div class="dc-item skeleton" aria-hidden="true">
+        <div class="dc-thumb skel"></div>
+        <div class="dc-main">
+          <div class="skel skel-chip"></div>
+          <div class="skel skel-line"></div>
+          <div class="skel skel-line-sm"></div>
+        </div>
       </div>
-      <div class="dl-item skeleton">
-        <div class="dl-thumb skeleton-pulse"></div>
-        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
-      </div>
-      <div class="dl-item skeleton">
-        <div class="dl-thumb skeleton-pulse"></div>
-        <div class="dl-main"><div class="skeleton-pulse skeleton-chip"></div><div class="skeleton-pulse skeleton-title"></div><div class="skeleton-pulse skeleton-sub"></div></div>
+      <div class="dc-item skeleton" aria-hidden="true">
+        <div class="dc-thumb skel"></div>
+        <div class="dc-main">
+          <div class="skel skel-chip"></div>
+          <div class="skel skel-line"></div>
+          <div class="skel skel-line-sm"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- EMPTY STATE -->
-  <div class="empty hidden" id="emptyState">
+  <div class="empty hidden" id="emptyState" role="status">
+    <div class="empty-glow"></div>
     <div class="empty-card">
       <div class="empty-mark">सेतु</div>
-      <h3 id="emptyTitle">This corner is quiet — for now.</h3>
-      <p>No wounds have been spoken here yet. Be the first. Your voice puts the first pin on the map.</p>
-      <a class="empty-btn" id="emptyBtn" href="#" target="_blank" rel="noopener">Speak a wound <span class="empty-arrow">→</span></a>
+      <h3 id="emptyTitle" data-i18n="emptyTitle">This corner is quiet — for now.</h3>
+      <p data-i18n="emptyDesc">No wounds have been spoken here yet. Be the first. Your voice puts the first pin on the map.</p>
+      <a class="empty-btn" id="emptyBtn" href="#" target="_blank" rel="noopener"><span data-i18n="emptyBtn">Speak a wound</span> <span class="empty-arrow">→</span></a>
     </div>
   </div>
 
   <!-- DOSSIER -->
-  <div class="sheet" id="dossier">
+  <div class="sheet" id="dossier" role="dialog" aria-modal="true" aria-label="Wound details">
     <div class="sheet-scrim" id="dosScrim"></div>
-    <div class="sheet-panel" id="dosPanel">
-      <div class="dos-img">
-        <div class="dos-img-content" id="dosImgContent"></div>
-        <button class="dos-close" id="dosClose"><i data-lucide="x"></i></button>
+    <div class="sheet-panel" id="dosPanel" role="document">
+      <div class="dos-hero" id="dosHero">
+        <div class="dos-hero-img" id="dosImgContent"></div>
+        <div class="dos-hero-gradient"></div>
+        <button class="dos-close" id="dosClose" aria-label="Close"><i data-lucide="x"></i></button>
         <div class="dos-toggle">
-          <button class="active" id="tabHeart" data-m="heart">Heart</button>
-          <button id="tabLedger" data-m="ledger">Ledger</button>
+          <button class="active" id="tabStory" data-m="story">Story</button>
+          <button id="tabDetails" data-m="details">Details</button>
+        </div>
+        <div class="dos-hero-meta">
+          <span class="dos-stage" id="dosStage"></span>
+          <button class="dos-share" id="dosShare" aria-label="Share"><i data-lucide="share-2" width="16" height="16"></i></button>
         </div>
       </div>
       <div class="dos-body">
-        <span class="dos-stage" id="dosStage"></span>
         <h2 class="dos-title" id="dosTitle"></h2>
         <div class="dos-cat" id="dosCat"></div>
 
-        <div class="heart-block" id="heartBlock">
+        <div class="story-block" id="storyBlock">
           <p class="dos-desc" id="dosDesc"></p>
+          <div class="dos-progress">
+            <div class="dos-progress-bar" id="dosProgressBar"></div>
+          </div>
           <div class="dos-traj-lbl"><span>Heard</span><span class="now" id="dosNow"></span><span>Proven</span></div>
           <div class="dos-traj" id="dosTraj"></div>
         </div>
 
-        <div class="ledger-block hidden" id="ledgerBlock">
+        <div class="details-block hidden" id="detailsBlock">
           <div class="lq" id="ledgerCards"></div>
           <div class="ledger-note">
             <b id="ledgerBin"></b>
@@ -129,12 +194,18 @@
   </div>
 
   <!-- TOAST -->
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    }
+  </script>
 </body>
 </html>

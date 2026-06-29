@@ -1,0 +1,17 @@
+{
+  "name": "Setu — The Map",
+  "short_name": "Setu",
+  "description": "A public map of civic wounds, tracked honestly.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f7f3",
+  "theme_color": "#0f3e17",
+  "icons": [
+    {
+      "src": "setu-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
