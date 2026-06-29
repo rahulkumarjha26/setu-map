@@ -40,6 +40,7 @@ L.marker([CFG.CENTER.lat, CFG.CENTER.lng],
 let ALL = [];
 let curCat = "all";
 let markers = {};
+let selectedId = null;
 
 function seedHTML(p){
   const c = pinColor(p);
@@ -70,10 +71,22 @@ function render(){
   if(shown.length === 0){ empty.classList.remove('hidden'); }
   else { empty.classList.add('hidden'); }
 
-  shown.forEach(p=>{
+  // Stagger pin entrance (skip stagger if > 60 pins — just fade layer in)
+  const useStagger = shown.length <= 60;
+
+  shown.forEach((p, i)=>{
     if(p.latitude==null || p.longitude==null) return;
     const m = L.marker([p.latitude,p.longitude],
-      {icon:L.divIcon({className:'mk',html:seedHTML(p),iconSize:[40,40],iconAnchor:[20,20]})}).addTo(seedLayer);
+      {icon:L.divIcon({
+        className:'mk'+(selectedId===p.id?' selected':''),
+        html:seedHTML(p),
+        iconSize:[40,40],iconAnchor:[20,20]
+      })}).addTo(seedLayer);
+    // Stagger delay
+    if(useStagger){
+      const el = m.getElement();
+      if(el) el.style.animationDelay = (i * 40)+'ms';
+    }
     m.on('click',()=>openDossier(p));
     markers[p.id]=m;
     if(p.is_sensitive){
@@ -81,14 +94,16 @@ function render(){
     }
   });
 
+  // Dock list
   const list = document.getElementById('dockList');
   list.innerHTML = '';
   const proven = shown.filter(p=>p.stage==="proven").length;
   document.getElementById('dockTitle').textContent =
     shown.length===0 ? "No wounds here yet." :
     (proven>0 ? proven+" healed, "+shown.length+" in motion" : shown.length+" wound"+(shown.length>1?"s":"")+" near you");
-  shown.forEach(p=>{
+  shown.forEach((p, i)=>{
     const d = document.createElement('div'); d.className='dl-item';
+    d.style.animationDelay = (i * 30)+'ms';
     const thumb = p.media_type==="photo" && p.media_url
       ? '<img src="'+p.media_url+'" alt="">' : (CAT_EMOJI[p.category]||"📍");
     d.innerHTML = '<div class="dl-thumb">'+thumb+'</div>'
@@ -102,6 +117,17 @@ function render(){
 
 // --- dossier ---
 function openDossier(p){
+  // Update selected pin
+  if(selectedId && markers[selectedId]){
+    const oldEl = markers[selectedId].getElement();
+    if(oldEl) oldEl.classList.remove('selected');
+  }
+  selectedId = p.id;
+  if(markers[p.id]){
+    const el = markers[p.id].getElement();
+    if(el) el.classList.add('selected');
+  }
+
   document.getElementById('dosTitle').textContent = p.title||"Untitled";
   document.getElementById('dosCat').textContent = p.category||"";
   document.getElementById('dosStage').textContent = stageLabel(p);
@@ -161,13 +187,37 @@ function escapeHTML(s){ return (s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'
 let toastT;
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
 
-document.getElementById('dosClose').addEventListener('click',()=>document.getElementById('dossier').classList.remove('show'));
-document.getElementById('dosScrim').addEventListener('click',()=>document.getElementById('dossier').classList.remove('show'));
+document.getElementById('dosClose').addEventListener('click',()=>{
+  document.getElementById('dossier').classList.remove('show');
+  if(selectedId && markers[selectedId]){
+    const el = markers[selectedId].getElement();
+    if(el) el.classList.remove('selected');
+  }
+  selectedId = null;
+});
+document.getElementById('dosScrim').addEventListener('click',()=>{
+  document.getElementById('dossier').classList.remove('show');
+  if(selectedId && markers[selectedId]){
+    const el = markers[selectedId].getElement();
+    if(el) el.classList.remove('selected');
+  }
+  selectedId = null;
+});
 document.getElementById('tabHeart').addEventListener('click',()=>setDosMode('heart'));
 document.getElementById('tabLedger').addEventListener('click',()=>setDosMode('ledger'));
 document.getElementById('refreshBtn').addEventListener('click',loadWounds);
-document.getElementById('locChip').textContent = "Your area";
+document.getElementById('locChip').textContent = "Listening across Delhi";
 document.getElementById('emptyBtn').href = CFG.BOT_URL || "#";
+
+// Live line update
+function updateLiveLine(){
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('dockK').textContent = "Across Delhi · updated "+h+":"+m;
+}
+updateLiveLine();
+setInterval(updateLiveLine, 30000);
 
 buildCatbar();
 loadWounds();

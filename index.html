@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Setu — The Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500..700&family=Inter:wght@400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -11,6 +14,7 @@
   <!-- MAP -->
   <div id="map"></div>
   <div class="map-tint"></div>
+  <div class="watermark">सेतु · the map</div>
 
   <!-- TOP BAR -->
   <div class="topbar">
@@ -49,7 +53,7 @@
       <div class="empty-mark">सेतु</div>
       <h3 id="emptyTitle">This corner is quiet — for now.</h3>
       <p>No wounds have been spoken here yet. Be the first. Your voice puts the first pin on the map.</p>
-      <a class="empty-btn" id="emptyBtn" href="#" target="_blank" rel="noopener">Speak a wound →</a>
+      <a class="empty-btn" id="emptyBtn" href="#" target="_blank" rel="noopener">Speak a wound <span class="empty-arrow">→</span></a>
     </div>
   </div>
 
@@ -79,7 +83,7 @@
           <div class="ledger-note">
             <b id="ledgerBin"></b>
             <p id="ledgerExplain"></p>
-            <p class="zero">₹0 taken by Setu from the help. Funds release only against verified milestones.</p>
+            <div class="zero-pill"><span class="check">✓</span> ₹0 taken by Setu · verified milestones only</div>
           </div>
         </div>
       </div>
