@@ -61,8 +61,8 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--fu);color:var
   backdrop-filter:blur(8px);border-radius:var(--r-pill);padding:6px 12px;font-size:var(--t-sm);font-weight:500;
   color:var(--soft);cursor:pointer;white-space:nowrap;box-shadow:var(--sh1);scroll-snap-align:start;min-height:44px;
   transition:background .15s,color .15s,border-color .15s;}
-.cat-ic{display:grid;place-items:center;flex-shrink:0;}
-.cat-ic svg{width:13px;height:13px;}
+.cat-ic{display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cat-ic svg{display:block;width:13px;height:13px;}
 .cat-lb{line-height:1;}
 .cat:hover{color:var(--ink);}
 .cat.active{background:var(--forest);color:var(--mint);border-color:var(--forest);}
