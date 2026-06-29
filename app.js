@@ -59,8 +59,23 @@ const map = L.map('map',{zoomControl:false,attributionControl:true,minZoom:4,max
 const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
   {subdomains:'abcd',attribution:'&copy; OSM &copy; CARTO',maxZoom:19}).addTo(map);
 const seedLayer = L.layerGroup().addTo(map);
-L.marker([CFG.CENTER.lat, CFG.CENTER.lng],
+let youMarker = L.marker([CFG.CENTER.lat, CFG.CENTER.lng],
   {icon:L.divIcon({className:'',html:'<div class="you"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:600}).addTo(map);
+
+// Try to center on user's location
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      map.setView([lat, lng], 14);
+      map.removeLayer(youMarker);
+      youMarker = L.marker([lat, lng],
+        {icon:L.divIcon({className:'',html:'<div class="you"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:600}).addTo(map);
+      document.getElementById('locChip').textContent = lat.toFixed(2)+', '+lng.toFixed(2);
+    },
+    ()=>{ /* user denied — keep default center */ }
+  );
+}
 
 let ALL = [];
 let curCat = "all";
