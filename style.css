@@ -26,8 +26,10 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--fu);color:var
 
 /* === TOP BAR === */
 .topbar{position:absolute;top:14px;left:16px;right:16px;z-index:20;display:flex;gap:10px;align-items:center;}
-.brand{display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--hair);border-radius:14px;padding:8px 14px;box-shadow:var(--sh1);flex-shrink:0;}
-.brand-mark{font-weight:600;font-size:18px;color:var(--forest);}
+.brand{display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--hair);border-radius:14px;padding:8px 14px;box-shadow:var(--sh1);flex-shrink:0;gap:2px;}
+.brand-row{display:flex;align-items:center;gap:8px;}
+.brand-icon{height:20px;width:auto;flex:none;display:block;}
+.brand-mark{font-weight:600;font-size:18px;color:var(--forest);font-family:var(--display);letter-spacing:-.3px;line-height:1;}
 .brand-sub{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--soft);}
 .loc{flex:1;min-width:0;background:var(--surf);border:1px solid var(--hair);border-radius:14px;padding:0 14px;box-shadow:var(--sh1);display:flex;align-items:center;gap:8px;}
 .search-icon{flex:none;color:var(--soft);width:18px;height:18px;stroke:var(--soft);}
