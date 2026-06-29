@@ -6,19 +6,20 @@ const CATS = ["all","sanitation","water","roads","education","health","environme
 const STAGES = ["heard","sorted","funded","built","proven"];
 
 // Category brand colours + a single consistent 1.8px stroke SVG icon set.
+// Category brand colours + official Lucide SVG paths (ISC license, stroke-based, consistent design).
 const CAT_COLOR = {
   sanitation:"#3f8a55", water:"#3f6f8a", roads:"#8a978c", education:"#bd8a40",
   health:"#b0654a", environment:"#2e7d46", elderly:"#7d6a9c", other:"#67726a"
 };
 const CAT_PATHS = {
-  sanitation:'<path d="M6 4h12v7a6 6 0 0 1-12 0z"/><path d="M9 4V3h6v1"/><path d="M8 21h8"/><path d="M12 17v4"/>',
-  water:'<path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/>',
-  roads:'<path d="M4 21l4-18M20 21l-4-18M12 4v3M12 11v3M12 18v2"/>',
-  education:'<path d="M3 7l9-4 9 4-9 4z"/><path d="M21 7v6M7 9v5a5 3 0 0 0 10 0V9"/>',
-  health:'<path d="M12 5v14M5 12h14"/>',
-  environment:'<path d="M11 20A7 7 0 0 1 4 13c0-4 3-8 7-9 1 5 5 6 5 11a5 5 0 0 1-5 5z"/>',
-  elderly:'<circle cx="12" cy="5" r="2.5"/><path d="M12 8v7m0-3l-4 5m4-5l4 5M8 12h8"/>',
-  other:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'
+  sanitation:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+  water:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  roads:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
+  education:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+  health:'<path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/><path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>',
+  environment:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  elderly:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.74"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/>',
+  other:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'
 };
 function catIcon(cat, color, size){
   const p = CAT_PATHS[cat] || CAT_PATHS.other;
